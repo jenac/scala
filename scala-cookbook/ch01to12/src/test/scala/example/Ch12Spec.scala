@@ -7,7 +7,7 @@ import scala.io.Source
 
 class Ch12Spec extends AnyFlatSpec with Matchers {
   "12.01" should "open and read files" in {
-    val filename = "/home/lihe/Projects/playground/scala-cookbook/build.sbt"
+    val filename = "/home/lihe/Projects/scala/scala-cookbook/build.sbt"
 
     val bufferedSource = Source.fromFile(filename)
     for (line <- bufferedSource.getLines()) {
@@ -31,8 +31,8 @@ class Ch12Spec extends AnyFlatSpec with Matchers {
     var in = None: Option[FileInputStream]
     var out = None: Option[FileOutputStream]
     try {
-      in = Some(new FileInputStream("/home/lihe/Projects/playground/scala-cookbook/1.pdf"))
-      out = Some(new FileOutputStream("/home/lihe/Projects/playground/scala-cookbook/1.copy.pdf"))
+      in = Some(new FileInputStream("/home/lihe/Projects/scala/scala-cookbook/1.pdf"))
+      out = Some(new FileOutputStream("/home/lihe/Projects/scala/scala-cookbook/1.copy.pdf"))
       var c = 0
       while ( {
         c = in.get.read; c != -1
@@ -58,13 +58,13 @@ class Ch12Spec extends AnyFlatSpec with Matchers {
       }
     }*/
 
-    val files = new File("/home/lihe/Projects/playground/scala-cookbook/ch01")
+    val files = new File("/home/lihe/Projects/scala/scala-cookbook/ch01to12")
       .listFiles(_.isFile).toList
     files.map(_.getName).foreach(println)
   }
 
   "12.09" should "list sub directories under directory" in {
-    val folders = new File("/home/lihe/Projects/playground/scala-cookbook/ch01")
+    val folders = new File("/home/lihe/Projects/scala/scala-cookbook/ch01to12")
       .listFiles(_.isDirectory).toList
     folders.map(_.getName).foreach(println)
   }

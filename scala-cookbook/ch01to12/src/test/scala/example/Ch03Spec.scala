@@ -331,12 +331,12 @@ class Ch03Spec extends AnyFlatSpec with Matchers {
     var out = None: Option[FileOutputStream]
 
     try {
-      in = Some(new FileInputStream("/tmp/a.txt"))
-      out = Some(new FileOutputStream("/tmp/b.txt"))
+      in = Some(new FileInputStream("/home/lihe/Projects/scala/scala-cookbook/a.txt"))
+      out = Some(new FileOutputStream("/home/lihe/Projects/scala/scala-cookbook/b.txt"))
 
       var c = 0
       while ( {
-        c = in.get.read; c != 1
+        c = in.get.read; c != -1
       }) {
         out.get.write(c)
       }
@@ -356,7 +356,7 @@ class Ch03Spec extends AnyFlatSpec with Matchers {
     //        out.foreach {
     //          outStream =>
     //            var c = 0
-    //            while ({c=inputStream.read; c!= 1}) {
+    //            while ({c=inputStream.read; c!= -1}) {
     //              outStream.write(c)
     //            }
     //        })

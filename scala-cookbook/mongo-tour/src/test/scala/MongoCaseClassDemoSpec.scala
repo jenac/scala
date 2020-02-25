@@ -60,7 +60,6 @@ class MongoCaseClassDemoSpec extends AnyFlatSpec with Matchers with BeforeAndAft
       result <- collection.find()
     } yield result
 
-    afterInsertMany
     afterInsertMany.subscribe(printPersonOnly)
     Thread.sleep(1000)
     println("----------------------------------------")
