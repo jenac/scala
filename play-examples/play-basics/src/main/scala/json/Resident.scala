@@ -7,6 +7,5 @@ case class Resident(name: String,
                     role: Option[String],
                     data: Map[String, String])
 object  Resident {
-  implicit val residentWrites = Json.writes[Resident]
-  implicit val residentReads = Json.reads[Resident]
+  implicit val residentFormat = Json.format[Resident]
 }
