@@ -87,4 +87,66 @@ class FunctionDataStructureSpec extends AnyFlatSpec with Matchers {
     init(List(1, 2, 3)) shouldBe List(1, 2)
     init(List(1)) shouldBe Nil
   }
+
+  "3.8" should "simulat foldRight" in {
+    def foldRight[A, B](as: List[A], z: B)(f: (A, B) => B): B =
+      as match {
+        case h :: t => f(h, foldRight(t, z)(f))
+        case Nil => z
+      }
+
+    foldRight(List(1, 2, 3, 4), Nil: List[Int])((a: Int, b: List[Int]) => a :: b) shouldBe List(1, 2, 3, 4)
+    foldRight(List(1, 2, 3, 4), Nil: List[Int])(_ :: _) shouldBe List(1, 2, 3, 4)
+  }
+
+  "3.9" should "get length using foldRight" in {
+    def length[A](as: List[A]): Int = as.foldRight(0)((as, b) => b + 1)
+
+    length(List(1, 2, 3)) shouldBe 3
+    length(List("a", "b", "c", "d")) shouldBe 4
+    length(Nil) shouldBe 0
+    length(List(1)) shouldBe 1
+  }
+
+  "3.10" should "foldLeft implementation" in {
+    def foldLeft[A, B](as: List[A], z: B)(f: (B, A) => B): B =
+      as match {
+        case Nil => z
+        case h :: t => foldLeft(t, f(z, h))(f)
+      }
+
+    foldLeft(List(1, 2, 3, 4), Nil: List[Int])((b: List[Int], a: Int) => a :: b) shouldBe List(4, 3, 2, 1)
+  }
+
+  "3.11" should "sum, product, length using foldLeft" in {
+    def sum(input: List[Int]): Int = input.foldLeft(0)((acc, i) => acc + i)
+
+    sum(List(1, 2, 3, 4)) shouldBe 10
+
+    def product(input: List[Double]): Double = input.foldLeft(1.0)((acc, i) => acc * i)
+
+    product(List(1.0, 2.0, 3.0)) shouldBe 6.0
+
+    def length[A](input: List[A]): Int = input.foldLeft(0)((acc, _) => acc + 1)
+
+    length(List(1, 2, 3, 4)) shouldBe 4
+    length(List("a", "b", "c")) shouldBe 3
+  }
+
+  "3.12" should "reverse list using foldLeft" in {
+    def reverse[A](input: List[A]): List[A] = input.foldLeft(Nil: List[A])((acc, i) => i :: acc)
+
+    reverse(List(1, 2, 3, 4)) shouldBe List(4, 3, 2, 1)
+    reverse(List("a", "b", "c")) shouldBe List("c", "b", "a")
+  }
+
+  "3.14" should "append using foldRight" in {
+    def append[A](input: List[A], e: List[A]): List[A] = input.foldRight(e)((i, acc) => i :: acc)
+
+    append(List(1, 2, 3), List(4, 5)) shouldBe List(1, 2, 3, 4, 5)
+    append(Nil, List(4, 5)) shouldBe List(4, 5)
+    append(List(4, 5), Nil) shouldBe List(4, 5)
+    append(Nil, Nil) shouldBe Nil
+  }
+
 }
