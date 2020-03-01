@@ -100,7 +100,7 @@ class FunctionDataStructureSpec extends AnyFlatSpec with Matchers {
   }
 
   "3.9" should "get length using foldRight" in {
-    def length[A](as: List[A]): Int = as.foldRight(0)((as, b) => b + 1)
+    def length[A](as: List[A]): Int = as.foldRight(0)((_, b) => b + 1)
 
     length(List(1, 2, 3)) shouldBe 3
     length(List("a", "b", "c", "d")) shouldBe 4
@@ -119,34 +119,69 @@ class FunctionDataStructureSpec extends AnyFlatSpec with Matchers {
   }
 
   "3.11" should "sum, product, length using foldLeft" in {
-    def sum(input: List[Int]): Int = input.foldLeft(0)((acc, i) => acc + i)
+    def sum(input: List[Int]): Int =
+      input.foldLeft(0)((acc, i) => acc + i)
 
     sum(List(1, 2, 3, 4)) shouldBe 10
 
-    def product(input: List[Double]): Double = input.foldLeft(1.0)((acc, i) => acc * i)
+    def product(input: List[Double]): Double =
+      input.foldLeft(1.0)((acc, i) => acc * i)
 
     product(List(1.0, 2.0, 3.0)) shouldBe 6.0
 
-    def length[A](input: List[A]): Int = input.foldLeft(0)((acc, _) => acc + 1)
+    def length[A](input: List[A]): Int =
+      input.foldLeft(0)((acc, _) => acc + 1)
 
     length(List(1, 2, 3, 4)) shouldBe 4
     length(List("a", "b", "c")) shouldBe 3
   }
 
   "3.12" should "reverse list using foldLeft" in {
-    def reverse[A](input: List[A]): List[A] = input.foldLeft(Nil: List[A])((acc, i) => i :: acc)
+    def reverse[A](input: List[A]): List[A] =
+      input.foldLeft(Nil: List[A])((acc, i) => i :: acc)
 
     reverse(List(1, 2, 3, 4)) shouldBe List(4, 3, 2, 1)
     reverse(List("a", "b", "c")) shouldBe List("c", "b", "a")
   }
 
-  "3.14" should "append using foldRight" in {
-    def append[A](input: List[A], e: List[A]): List[A] = input.foldRight(e)((i, acc) => i :: acc)
+  "3.15" should "append using foldRight" in {
+    def append[A](input: List[A], e: List[A]): List[A] =
+      input.foldRight(e)((i, acc) => i :: acc)
 
     append(List(1, 2, 3), List(4, 5)) shouldBe List(1, 2, 3, 4, 5)
     append(Nil, List(4, 5)) shouldBe List(4, 5)
     append(List(4, 5), Nil) shouldBe List(4, 5)
     append(Nil, Nil) shouldBe Nil
+  }
+
+  "3.16" should "add 1" in {
+    def increase(input: List[Int]): List[Int] =
+      input.foldRight(Nil: List[Int])((i, acc) => i + 1 :: acc)
+
+    increase(List(1, 2, 3, 4)) shouldBe List(2, 3, 4, 5)
+  }
+
+  "3.17" should "to string" in {
+    def mapToString(input: List[Double]): List[String] =
+      input.foldRight(Nil: List[String])((d, acc) => d.toString :: acc)
+
+    mapToString(List(1.0, 2.0, 3.0)) shouldBe List("1.0", "2.0", "3.0")
+  }
+
+  "3.18" should "implement map" in {
+    def map[A, B](input: List[A])(f: A => B): List[B] =
+      input.foldRight(Nil: List[B])((e, acc) => f(e) :: acc)
+
+    map(List(1, 2, 3))(_.toString) shouldBe List("1", "2", "3")
+    map(List(1, 2, 3))(_ * 2.0) shouldBe List(2.0, 4.0, 6.0)
+    map(List("How", "is", "GOING"))(_.length) shouldBe List(3, 2, 5)
+  }
+
+  "3.19" should "implement filter" in {
+    def filter[A](input: List[A])(f: A => Boolean) =
+      input.foldRight(Nil: List[A])((e, acc) => if (f(e)) acc else e :: acc)
+
+    filter(List(1, 2, 3, 4, 5, 6))(_ % 2 == 1) shouldBe List(2, 4, 6)
   }
 
 }
