@@ -1,6 +1,8 @@
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should.Matchers
 
+import scala.annotation.tailrec
+
 class FunctionDataStructureSpec extends AnyFlatSpec with Matchers {
   "2.6" should "match result" in {
     val x = List(1, 2, 3, 4, 5) match {
@@ -203,13 +205,80 @@ class FunctionDataStructureSpec extends AnyFlatSpec with Matchers {
   }
 
   "3.23" should "implement zipWith" in {
-    def zipWith[A, B, C](a: List[A], b: List[B]) (f: (A, B)=>C): List[C] = (a, b) match {
+    def zipWith[A, B, C](a: List[A], b: List[B])(f: (A, B) => C): List[C] = (a, b) match {
       case (Nil, _) => Nil
       case (_, Nil) => Nil
-      case (h1::t1, h2::t2) => f(h1, h2)::zipWith(t1, t2)(f)
+      case (h1 :: t1, h2 :: t2) => f(h1, h2) :: zipWith(t1, t2)(f)
     }
 
-    zipWith(List(1,2,3), List("a", "b", "c"))((i, c) =>s"$i: $c") shouldBe List("1: a", "2: b", "3: c")
+    zipWith(List(1, 2, 3), List("a", "b", "c"))((i, c) => s"$i: $c") shouldBe List("1: a", "2: b", "3: c")
   }
 
+  "3.24" should "implement hasSubsequence" in {
+    @tailrec
+    def startsWith[A](l: List[A], prefix: List[A]): Boolean = (l, prefix) match {
+      case (_, Nil) => true
+      case (h1 :: t1, h2 :: t2) if (h1 == h2) => startsWith(t1, t2)
+      case _ => false
+    }
+
+    @tailrec
+    def hasSubsequence[A](sup: List[A], sub: List[A]): Boolean = sup match {
+      case Nil => sub == Nil
+      case _ if startsWith(sup, sub) => true //the if guard makes the difference
+      case h :: t => hasSubsequence(t, sub)
+    }
+
+    def l = List(1, 2, 3, 4, 5)
+
+    hasSubsequence(l, List(2, 3)) shouldBe true
+    hasSubsequence(l, List(0, 1)) shouldBe false
+    hasSubsequence(l, Nil) shouldBe true
+  }
+
+  "3.25" should "implement Tree size" in {
+    def treeSize[A](t: Tree[A]): Int = t match {
+      case Leaf(_) => 1
+      case Branch(left, right) => 1 + treeSize(left) + treeSize(right)
+    }
+
+    treeSize(Leaf(1)) shouldBe 1
+    treeSize(Branch(Leaf(1), Leaf(2))) shouldBe 3
+    treeSize(Branch(Branch(Leaf(1), Leaf(1)), Leaf(2))) shouldBe 5
+  }
+
+  "3.26" should "implement Tree max" in {
+    def treeMax(t: Tree[Int]): Int = t match {
+      case Leaf(v) => v
+      case Branch(left, right) => treeMax(left) max treeMax(right)
+    }
+
+    treeMax(Leaf(1)) shouldBe 1
+    treeMax(Branch(Leaf(1), Leaf(2))) shouldBe 2
+    treeMax(Branch(Branch(Leaf(1), Leaf(10)), Leaf(2))) shouldBe 10
+  }
+
+  "3.27" should "implement Tree Depth" in {
+    def treeDepth[A](t: Tree[A]): Int = t match {
+      case Leaf(_) => 0
+      case Branch(left, right) => 1 + (treeDepth(left) max treeDepth(right))
+    }
+
+    treeDepth(Leaf(1)) shouldBe 0
+    treeDepth(Branch(Leaf(1), Leaf(2))) shouldBe 1
+    treeDepth(Branch(Branch(Leaf(1), Leaf(2)), Leaf(3))) shouldBe 2
+  }
+
+  "3.28" should "implement Tree Map" in {
+    def treeMap[A, B](t: Tree[A])(f: A => B): Tree[B] = t match {
+      case Leaf(a) => Leaf(f(a))
+      case Branch(left, right) => Branch(treeMap(left)(f), treeMap(right)(f))
+    }
+
+    treeMap(Branch(Branch(Leaf(1), Leaf(2)), Leaf(3)))(_*2) shouldBe Branch(Branch(Leaf(2), Leaf(4)), Leaf(6))
+  }
+
+  "3.29" should "implement Tree Fold" in {
+
+  }
 }
