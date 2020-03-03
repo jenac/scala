@@ -184,4 +184,32 @@ class FunctionDataStructureSpec extends AnyFlatSpec with Matchers {
     filter(List(1, 2, 3, 4, 5, 6))(_ % 2 == 1) shouldBe List(2, 4, 6)
   }
 
+  "3.20" should "implement flatMap" in {
+    def flatMap[A, B](as: List[A])(f: A => List[B]): List[B] =
+      (as.foldRight(Nil: List[B])((e, acc) => f(e) ++ acc))
+
+    flatMap(List(1, 2, 3))(i => List(i, i)) shouldBe List(1, 1, 2, 2, 3, 3)
+  }
+
+  "3.22" should "implement list add" in {
+    def add(a: List[Int], b: List[Int]): List[Int] = (a, b) match {
+      case (Nil, _) => Nil
+      case (_, Nil) => Nil
+      case (h1 :: t1, h2 :: t2) => (h1 + h2) :: add(t1, t2)
+    }
+
+    add(List(1, 2, 3), List(4, 5, 6)) shouldBe List(5, 7, 9)
+    add(List(1, 2, 3), List(4, 5, 6, 9)) shouldBe List(5, 7, 9)
+  }
+
+  "3.23" should "implement zipWith" in {
+    def zipWith[A, B, C](a: List[A], b: List[B]) (f: (A, B)=>C): List[C] = (a, b) match {
+      case (Nil, _) => Nil
+      case (_, Nil) => Nil
+      case (h1::t1, h2::t2) => f(h1, h2)::zipWith(t1, t2)(f)
+    }
+
+    zipWith(List(1,2,3), List("a", "b", "c"))((i, c) =>s"$i: $c") shouldBe List("1: a", "2: b", "3: c")
+  }
+
 }
