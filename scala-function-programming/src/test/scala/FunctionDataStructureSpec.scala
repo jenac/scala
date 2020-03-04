@@ -4,6 +4,7 @@ import org.scalatest.matchers.should.Matchers
 import scala.annotation.tailrec
 
 class FunctionDataStructureSpec extends AnyFlatSpec with Matchers {
+
   "2.6" should "match result" in {
     val x = List(1, 2, 3, 4, 5) match {
       case x :: 2 :: 4 :: _ => x
@@ -275,10 +276,28 @@ class FunctionDataStructureSpec extends AnyFlatSpec with Matchers {
       case Branch(left, right) => Branch(treeMap(left)(f), treeMap(right)(f))
     }
 
-    treeMap(Branch(Branch(Leaf(1), Leaf(2)), Leaf(3)))(_*2) shouldBe Branch(Branch(Leaf(2), Leaf(4)), Leaf(6))
+    treeMap(Branch(Branch(Leaf(1), Leaf(2)), Leaf(3)))(_ * 2) shouldBe Branch(Branch(Leaf(2), Leaf(4)), Leaf(6))
   }
 
   "3.29" should "implement Tree Fold" in {
+    def treeFold[A, B](t: Tree[A])(f: A => B)(g: (B, B) => B): B = t match {
+      case Leaf(a) => f(a)
+      case Branch(left, right) => g(treeFold(left)(f)(g), treeFold(right)(f)(g))
+    }
 
+    def sizeViaFold[A](t: Tree[A]): Int = treeFold(t)(a => 1)(1 + _ + _)
+
+    def maxViaFold(t: Tree[Int]): Int = treeFold(t)(a => a)(_ max _)
+
+    def depthViaFold[A](t: Tree[A]): Int = treeFold(t)(a => 0)((d1, d2) => 1 + (d1 max d2))
+
+    def mapViaFold[A, B](t: Tree[A])(f: A => B): Tree[B] = treeFold(t)(a => Leaf(f(a)): Tree[B])(Branch(_, _))
+
+    def t = Branch(Branch(Leaf(1), Leaf(2)), Leaf(3))
+
+    sizeViaFold(t) shouldBe 5
+    maxViaFold(t) shouldBe 3
+    depthViaFold(t) shouldBe 2
+    mapViaFold(t)(_ % 2 == 0) shouldBe Branch(Branch(Leaf(false), Leaf(true)), Leaf(false))
   }
 }
