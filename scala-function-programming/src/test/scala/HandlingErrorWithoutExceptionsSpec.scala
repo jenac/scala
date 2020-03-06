@@ -1,6 +1,8 @@
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should.Matchers
 
+import scala.util.{Success, Try}
+
 
 class HandlingErrorWithoutExceptionsSpec extends AnyFlatSpec with Matchers {
 
@@ -25,7 +27,9 @@ class HandlingErrorWithoutExceptionsSpec extends AnyFlatSpec with Matchers {
     }
 
   }
+
   case class Some[+A](get: A) extends Option[A]
+
   case object None extends Option[Nothing]
 
   "4.1" should "map works" in {
@@ -39,11 +43,13 @@ class HandlingErrorWithoutExceptionsSpec extends AnyFlatSpec with Matchers {
     }
 
     def getDepartment: (Option[Employee]) => Option[String] = _.map(_.department)
+
     getDepartment(lookupByName("Joe")) shouldBe Some("Finances")
     getDepartment(lookupByName("Mary")) shouldBe Some("IT")
     getDepartment(lookupByName("Foo")) shouldBe None
 
     def getManager: (Option[Employee]) => Option[String] = _.flatMap(_.manager)
+
     getManager(lookupByName("Joe")) shouldBe Some("Julie")
     getManager(lookupByName("Mary")) shouldBe None
     getManager(lookupByName("Foo")) shouldBe None
@@ -58,6 +64,53 @@ class HandlingErrorWithoutExceptionsSpec extends AnyFlatSpec with Matchers {
       if (xs.isEmpty) None
       else Some(xs.sum / xs.length)
 
-//    def variance(xs: Seq[Double]): Option[Double] = mean(xs) flatMap(m=> )
+    def variance(xs: Seq[Double]): Option[Double] =
+      mean(xs) flatMap (m => mean(xs.map(x => math.pow(x - m, 2))))
+  }
+
+  "4.3" should "implement map2" in {
+    def map2[A, B, C](a: Option[A], b: Option[B])(f: (A, B) => C): Option[C] =
+      a flatMap (aa => b map (bb => f(aa, bb)))
+
+  }
+
+  "4.4" should "implement sequence" in {
+    def sequence[A](a: List[Option[A]]): Option[List[A]] = a match {
+      case Nil => Some(Nil)
+      case h :: t => h flatMap (hh => sequence(t) map (hh :: _))
+    }
+
+    sequence(List(Some(1), Some(2), Some(3))) shouldBe Some(List(1, 2, 3))
+    sequence(List(Some(1), Some(2), None)) shouldBe None
+  }
+
+  "4.5" should "traverse implementations" in {
+    def map2[A, B, C](a: Option[A], b: Option[B])(f: (A, B) => C): Option[C] =
+      a flatMap (aa => b map (bb => f(aa, bb)))
+
+    //with match
+    def traverse[A, B](a: List[A])(f: A => Option[B]): Option[List[B]] = a match {
+      case Nil => Some(Nil)
+      case h :: t => map2(f(h), traverse(t)(f))(_ :: _)
+    }
+
+    //with flodRight
+    def traverse_1[A, B](a: List[A])(f: A => Option[B]): Option[List[B]] =
+      a.foldRight[Option[List[B]]](Some(Nil))((h, t) => map2(f(h), t)(_ :: _))
+
+    def sequenceViaTraverse[A](a: List[Option[A]]): Option[List[A]] = traverse(a)(x => x)
+
+    val list1 = List("1", "2", "3")
+    val list2 = List("I", "II", "III", "IV")
+
+    def parseInt(a: String): Option[Int] = Try(a.toInt) match {
+      case Success(r) => Some(r)
+      case _ => None
+    }
+
+    traverse(list1)(i => parseInt(i)) shouldBe Some(List(1, 2, 3))
+    traverse(list2)(i => parseInt(i)) shouldBe None
+
+
   }
 }
