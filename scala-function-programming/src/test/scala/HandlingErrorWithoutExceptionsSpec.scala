@@ -1,6 +1,7 @@
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should.Matchers
 
+import scala.runtime.Nothing$
 import scala.util.{Success, Try}
 
 
@@ -110,7 +111,38 @@ class HandlingErrorWithoutExceptionsSpec extends AnyFlatSpec with Matchers {
 
     traverse(list1)(i => parseInt(i)) shouldBe Some(List(1, 2, 3))
     traverse(list2)(i => parseInt(i)) shouldBe None
+  }
 
+  "4.6" should "Either map, flatMap, orElse" in {
+    case class Employee(name: String, department: String, manager: Option[String])
+    def lookupByNameViaEither(name: String): Either[String, Employee] = name match {
+      case "Joe" => Right(Employee("Joe", "Finances", Some("Julie")))
+      case "Mary" => Right(Employee("Mary", "IT", None))
+      case "Izumi" => Right(Employee("Izumi", "IT", Some("Mary")))
+      case _ => Left("Employee not found")
+    }
+
+    def getDepartment: (Either[String, Employee]) => Either[String, String] =
+      _.map(_.department)
+
+    getDepartment(lookupByNameViaEither("Joe")) shouldBe Right("Finances")
+    getDepartment(lookupByNameViaEither("Mary")) shouldBe Right("IT")
+    getDepartment(lookupByNameViaEither("Foo")) shouldBe Left("Employee not found")
+
+    def getManager(employee: Either[String, Employee]): Either[String, String] =
+      employee.flatMap(e =>
+        e.manager match {
+          case Some(e) => Right(e)
+          case _ => Left("Manager not found")
+        })
+
+    getManager(lookupByNameViaEither("Joe")) shouldBe Right("Julie")
+    getManager(lookupByNameViaEither("Mary")) shouldBe Left("Manager not found")
+    getManager(lookupByNameViaEither("Foo")) shouldBe Left("Employee not found")
+
+    getManager(lookupByNameViaEither("Joe")).orElse(Right("Mr. CEO")) shouldBe Right("Julie")
+    getManager(lookupByNameViaEither("Mary")).orElse(Right("Mr. CEO")) shouldBe Right("Mr. CEO")
+    getManager(lookupByNameViaEither("Foo")).orElse(Right("Mr. CEO")) shouldBe Right("Mr. CEO")
 
   }
 }
