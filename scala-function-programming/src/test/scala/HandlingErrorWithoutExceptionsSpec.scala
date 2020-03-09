@@ -1,7 +1,6 @@
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should.Matchers
 
-import scala.runtime.Nothing$
 import scala.util.{Success, Try}
 
 
