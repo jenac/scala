@@ -61,7 +61,7 @@ class StrictnessAndLazinessSpec extends AnyFlatSpec with Matchers {
 
   "5.5" should "implement takeWhile using foldRight" in {
     def takeWhile[A](input: LazyList[A])(p: A => Boolean): LazyList[A] =
-      input.foldRight(LazyList[A]())((a, b) =>
+      input.foldRight(LazyList.empty[A])((a, b) =>
         if (p(a)) a #:: b
         else LazyList.empty)
 
@@ -75,5 +75,27 @@ class StrictnessAndLazinessSpec extends AnyFlatSpec with Matchers {
 
     headOption(LazyList(1, 2, 3)) shouldBe Some(1)
     headOption(LazyList.empty) shouldBe None
+  }
+
+  "5.7" should "implement map, filter, append, flatMap using foldRight" in {
+    def map[A, B](input: LazyList[A])(f: A => B): LazyList[B] =
+      input.foldRight(LazyList.empty[B])((e, acc) => f(e) #:: acc)
+
+    map(LazyList(1, 2, 3))(_ * 2) shouldBe LazyList(2, 4, 6)
+
+    def filter[A](input: LazyList[A])(f: A => Boolean): LazyList[A] =
+      input.foldRight(LazyList.empty[A])((e, acc) => if (f(e)) e #:: acc else acc)
+
+    filter(LazyList(1, 2, 3, 4, 5, 6))(_ <= 3) shouldBe LazyList(1, 2, 3)
+
+    def append[A, B >: A](a: LazyList[A], b: LazyList[B]): LazyList[B] =
+      a.foldRight(b)((e, acc) => e #:: acc)
+
+    append(LazyList("a", "b", "c"), LazyList("1", "2", "3")) shouldBe LazyList("a", "b", "c", "1", "2", "3")
+
+    def flatMap[A, B](input: LazyList[A])(f: A => LazyList[B]): LazyList[B] =
+      input.foldRight(LazyList.empty[B])((h, t) => append(f(h), t))
+
+    flatMap(LazyList(2, 3))(s => (0 to s).to(LazyList)) shouldBe LazyList(0, 1, 2, 0, 1, 2, 3)
   }
 }
