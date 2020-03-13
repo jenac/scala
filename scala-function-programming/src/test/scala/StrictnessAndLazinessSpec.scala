@@ -1,3 +1,5 @@
+import java.time.LocalDate
+
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should.Matchers
 
@@ -97,5 +99,55 @@ class StrictnessAndLazinessSpec extends AnyFlatSpec with Matchers {
       input.foldRight(LazyList.empty[B])((h, t) => append(f(h), t))
 
     flatMap(LazyList(2, 3))(s => (0 to s).to(LazyList)) shouldBe LazyList(0, 1, 2, 0, 1, 2, 3)
+  }
+
+  "5.8" should "define infinity constants" in {
+    def constant[A](a: A): LazyList[A] = a #:: constant(a)
+
+    constant(12).take(3) shouldBe LazyList(12, 12, 12)
+    constant(12).take(5) shouldBe LazyList(12, 12, 12, 12, 12) //also right
+  }
+
+  "5.9" should "implement infinite from n" in {
+    def from(n: Int): LazyList[Int] = n #:: from(n + 1)
+
+    from(6).take(3) shouldBe LazyList(6, 7, 8)
+  }
+
+  "5.10" should "implement infinite fib" in {
+    val fibs = {
+      def go(f0: Int, f1: Int): LazyList[Int] = f0 #:: go(f1, f0 + f1)
+
+      go(0, 1)
+    }
+
+    fibs.take(3) shouldBe LazyList(0, 1, 1)
+    fibs.take(7) shouldBe LazyList(0, 1, 1, 2, 3, 5, 8)
+  }
+
+  "5.11" should "implement unfold" in {
+    def unfold[A, S](z: S)(f: S => Option[(A, S)]): LazyList[A] = f(z) match {
+      case Some((a, s)) => a #:: unfold(s)(f)
+      case None => LazyList.empty[A]
+    }
+
+    //5.12 implement fibs, from, constants and ones
+    def fibsViaUnfold =
+      unfold((0, 1)) { case (f0, f1) => Some((f0, (f1, f0 + f1))) }
+
+    fibsViaUnfold.take(7).toList shouldBe List(0, 1, 1, 2, 3, 5, 8)
+
+    def fromViaUnfold(n: Int) = unfold(n)(n => Some((n, n + 1)))
+
+    fromViaUnfold(100).take(5) shouldBe LazyList(100, 101, 102, 103, 104)
+
+    def constantsViaUnfold(n: Int) = unfold(n)(n => Some(n, n))
+
+    constantsViaUnfold(12).take(3) shouldBe LazyList(12, 12, 12)
+
+    def onesViaUnfold = unfold(1)(_ => Some((1, 1)))
+
+    onesViaUnfold.take(5) shouldBe LazyList(1, 1, 1, 1, 1)
+
   }
 }
