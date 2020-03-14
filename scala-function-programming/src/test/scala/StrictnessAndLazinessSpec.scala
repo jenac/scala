@@ -149,5 +149,34 @@ class StrictnessAndLazinessSpec extends AnyFlatSpec with Matchers {
 
     onesViaUnfold.take(5) shouldBe LazyList(1, 1, 1, 1, 1)
 
+    //5.13 implement map, take, takeWhile, zipWith using unfold
+    def mapViaUnfold[A, B](i: LazyList[A])(f: A => B): LazyList[B] =
+      unfold(i) {
+        _ match {
+          case (h #:: t) => Some((f(h), t))
+          case _ => None
+        }
+      }
+
+    mapViaUnfold(LazyList(1, 2, 3, 4))(_.toString) shouldBe LazyList("1", "2", "3", "4")
+
+    def takeViaUnfold[A](input: LazyList[A], n: Int): LazyList[A] = input match {
+      case h #:: t if n > 0 => h #:: takeViaUnfold(t, n - 1)
+      case _ => LazyList.empty[A]
+    }
+
+    takeViaUnfold(LazyList(1, 2, 3, 4), 2) shouldBe LazyList(1, 2)
+    takeViaUnfold(LazyList(1, 2, 3, 4), 0) shouldBe LazyList.empty[Int]
+    takeViaUnfold(LazyList(1, 2, 3, 4), 8) shouldBe LazyList(1, 2, 3, 4)
+    takeViaUnfold(LazyList.empty[Int], 8) shouldBe LazyList.empty[Int]
+
+    def takeWhileViaUnfold[A](input: LazyList[A])(f: A=>Boolean): LazyList[A] = input match {
+      case h #:: t => if (f(h)) h #:: takeWhileViaUnfold(t)(f) else takeWhileViaUnfold(t)(f)
+      case _ => LazyList.empty[A]
+    }
+
+    takeWhileViaUnfold(LazyList(1, 2, 3, 4))( _%2 == 0) shouldBe LazyList(2, 4)
+    takeWhileViaUnfold(LazyList(1, 2, 3, 4))( _ => false ) shouldBe LazyList.empty[Int]
+
   }
 }
