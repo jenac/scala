@@ -160,23 +160,37 @@ class StrictnessAndLazinessSpec extends AnyFlatSpec with Matchers {
 
     mapViaUnfold(LazyList(1, 2, 3, 4))(_.toString) shouldBe LazyList("1", "2", "3", "4")
 
-    def takeViaUnfold[A](input: LazyList[A], n: Int): LazyList[A] = input match {
-      case h #:: t if n > 0 => h #:: takeViaUnfold(t, n - 1)
-      case _ => LazyList.empty[A]
-    }
+    def takeViaUnfold[A](input: LazyList[A], n: Int): LazyList[A] =
+      unfold(input, n) {
+        _ match {
+          case (h #:: t, 1) => Some((h, (t, 0)))
+          case (h #:: t, n) if n > 1 => Some((h, (t, n - 1)))
+          case _ => None
+        }
+      }
 
     takeViaUnfold(LazyList(1, 2, 3, 4), 2) shouldBe LazyList(1, 2)
     takeViaUnfold(LazyList(1, 2, 3, 4), 0) shouldBe LazyList.empty[Int]
     takeViaUnfold(LazyList(1, 2, 3, 4), 8) shouldBe LazyList(1, 2, 3, 4)
     takeViaUnfold(LazyList.empty[Int], 8) shouldBe LazyList.empty[Int]
 
-    def takeWhileViaUnfold[A](input: LazyList[A])(f: A=>Boolean): LazyList[A] = input match {
-      case h #:: t => if (f(h)) h #:: takeWhileViaUnfold(t)(f) else takeWhileViaUnfold(t)(f)
-      case _ => LazyList.empty[A]
-    }
+    def takeWhileViaUnfold[A](input: LazyList[A])(f: A => Boolean): LazyList[A] =
+      unfold(input) {
+        _ match {
+          case h #:: t if (f(h)) => Some(h, t)
+          case _ => None
+        }
+      }
 
-    takeWhileViaUnfold(LazyList(1, 2, 3, 4))( _%2 == 0) shouldBe LazyList(2, 4)
-    takeWhileViaUnfold(LazyList(1, 2, 3, 4))( _ => false ) shouldBe LazyList.empty[Int]
+    takeWhileViaUnfold(LazyList(1, 2, 3, 4))(_ < 8) shouldBe LazyList(1, 2, 3, 4)
+    takeWhileViaUnfold(LazyList(1, 2, 3, 4))(_ < 3) shouldBe LazyList(1, 2)
 
+    def zipWith[A, B, C](s1: LazyList[A], s2: LazyList[B])(f: (A, B) => C): LazyList[C] =
+      unfold((s1, s2)) {
+        case (h1 #:: t1, h2 #:: t2) => Some(f(h1, h2), (t1, t2))
+        case _ => None
+      }
+
+    zipWith(LazyList(2, 2, 2), LazyList(1, 2, 3))(_ + _) shouldBe LazyList(3, 4, 5)
   }
 }
