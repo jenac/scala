@@ -191,6 +191,22 @@ class StrictnessAndLazinessSpec extends AnyFlatSpec with Matchers {
         case _ => None
       }
 
+
     zipWith(LazyList(2, 2, 2), LazyList(1, 2, 3))(_ + _) shouldBe LazyList(3, 4, 5)
+
+
+    def zipAll[A, B](s1: LazyList[A], s2: LazyList[B]): LazyList[(Option[A], Option[B])] = zipWithAll(s1, s2)((_, _))
+
+    def zipWithAll[A, B, C](s1: LazyList[A], s2: LazyList[B])(f: (Option[A], Option[B]) => C): LazyList[C] =
+      unfold((s1, s2)) {
+        case (LazyList(), LazyList()) => None
+        case (h #:: t, LazyList()) => Some(f(Some(h), None) -> (t, LazyList()))
+        case (LazyList(), h #:: t) => Some(f(None, Some(h)) -> (LazyList() -> t))
+        case (h1 #:: t1, h2 #:: t2) => Some(f(Some(h1), Some(h2)) -> (t1 -> t2))
+      }
+
+    zipAll(LazyList(1, 2, 3), LazyList("a", "b", "c")) shouldBe LazyList((Some(1), Some("a")), (Some(2), Some("b")), (Some(3), Some("c")))
+    zipAll(LazyList(1, 2), LazyList("a", "b", "c")) shouldBe LazyList((Some(1), Some("a")), (Some(2), Some("b")), (None, Some("c")))
+    zipAll(LazyList(1, 2, 3), LazyList("a", "b")) shouldBe LazyList((Some(1), Some("a")), (Some(2), Some("b")), (Some(3), None))
   }
 }
