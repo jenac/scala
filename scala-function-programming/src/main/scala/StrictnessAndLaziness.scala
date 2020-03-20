@@ -143,4 +143,11 @@ object StrictnessAndLaziness {
       ))
     }, LazyList(LazyList()))
 
+  //5.16
+  def scanRight[A, B](input: LazyList[A], z: B)(f: (A, => B) => B): LazyList[B] =
+    input.foldRight((z, LazyList(z)))((a, p0) => {
+      lazy val p1 = p0
+      val b2 = f(a, p1._1)
+      (b2, (b2 #:: p1._2))
+    })._2
 }

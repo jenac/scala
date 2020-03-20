@@ -95,4 +95,8 @@ class StrictnessAndLazinessSpec extends AnyFlatSpec with Matchers {
     tails(LazyList(1, 2, 3)).toList
       .map(_.toList) shouldBe List(List(1, 2, 3), List(2, 3), List(3), List())
   }
+
+  "5.16" should "implement scanRight" in {
+    LazyList(1, 2, 3).scanRight(0)(_ + _).toList shouldBe List(6, 5, 3, 0)
+  }
 }
