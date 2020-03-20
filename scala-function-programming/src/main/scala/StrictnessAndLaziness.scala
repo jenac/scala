@@ -134,4 +134,13 @@ object StrictnessAndLaziness {
     forAll(zipAll(whole, part).takeWhile(!_._2.isEmpty)) {
       case (h, h2) => h == h2
     }
+
+  //5.15
+  def tails[A](s: LazyList[A]): LazyList[LazyList[A]] =
+    append(unfold(s) {
+      case LazyList() => None
+      case s1 => Some((s1, drop(s1, 1)
+      ))
+    }, LazyList(LazyList()))
+
 }

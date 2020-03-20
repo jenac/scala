@@ -91,4 +91,8 @@ class StrictnessAndLazinessSpec extends AnyFlatSpec with Matchers {
     startsWith(LazyList(1,2), LazyList(1,2,3)) shouldBe false
   }
 
+  "5.15" should "implement tail using unfold" in {
+    tails(LazyList(1, 2, 3)).toList
+      .map(_.toList) shouldBe List(List(1, 2, 3), List(2, 3), List(3), List())
+  }
 }
