@@ -61,12 +61,14 @@ class StrictnessAndLazinessSpec extends AnyFlatSpec with Matchers {
     fibs.take(7) shouldBe LazyList(0, 1, 1, 2, 3, 5, 8)
   }
 
-  "5.11/12/13" should "implement unfold, implement fibs, from, constants and ones, implement map, take, takeWhile, zipWith using unfold" in {
+  "5.12/13" should "implement unfold, implement fibs, from, constants and ones" in {
     fibsViaUnfold.take(7).toList shouldBe List(0, 1, 1, 2, 3, 5, 8)
     fromViaUnfold(100).take(5) shouldBe LazyList(100, 101, 102, 103, 104)
     constantsViaUnfold(12).take(3) shouldBe LazyList(12, 12, 12)
     onesViaUnfold.take(5) shouldBe LazyList(1, 1, 1, 1, 1)
+  }
 
+  "5.13" should "implement map, take, takeWhile, zipWith using unfold" in {
     mapViaUnfold(LazyList(1, 2, 3, 4))(_.toString) shouldBe LazyList("1", "2", "3", "4")
 
     takeViaUnfold(LazyList(1, 2, 3, 4), 2) shouldBe LazyList(1, 2)
@@ -83,4 +85,10 @@ class StrictnessAndLazinessSpec extends AnyFlatSpec with Matchers {
     zipAll(LazyList(1, 2), LazyList("a", "b", "c")) shouldBe LazyList((Some(1), Some("a")), (Some(2), Some("b")), (None, Some("c")))
     zipAll(LazyList(1, 2, 3), LazyList("a", "b")) shouldBe LazyList((Some(1), Some("a")), (Some(2), Some("b")), (Some(3), None))
   }
+
+  "5.14" should "implement startsWith" in {
+    startsWith(LazyList(1,2,3), LazyList(1,2)) shouldBe true
+    startsWith(LazyList(1,2), LazyList(1,2,3)) shouldBe false
+  }
+
 }

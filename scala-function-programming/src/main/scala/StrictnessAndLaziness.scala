@@ -129,4 +129,9 @@ object StrictnessAndLaziness {
       case (h1 #:: t1, h2 #:: t2) => Some(f(Some(h1), Some(h2)) -> (t1 -> t2))
     }
 
+  //5.14
+  def startsWith[A](whole: LazyList[A], part: LazyList[A]): Boolean =
+    forAll(zipAll(whole, part).takeWhile(!_._2.isEmpty)) {
+      case (h, h2) => h == h2
+    }
 }
