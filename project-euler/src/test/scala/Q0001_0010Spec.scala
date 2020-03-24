@@ -32,7 +32,7 @@ class Q0001_0010Spec extends AnyFlatSpec with Matchers {
      * By considering the terms in the Fibonacci sequence whose values do not exceed four million,
      * find the sum of the even-valued terms.
      */
-    def fibo(n: Int): Int = {
+     def fibo(n: Int): Int = {
       @tailrec
       def loop(n: Int, prev: Int, cur: Int): Int =
         if (n <= 1) prev
@@ -45,6 +45,9 @@ class Q0001_0010Spec extends AnyFlatSpec with Matchers {
     fibo(4) shouldBe 5
     fibo(10) shouldBe 89
 
-
+    def fibs(x: BigInt=0, y:BigInt=1): LazyList[BigInt] = x #:: fibs(y, x+y)
+    fibs().take(10) shouldBe LazyList[BigInt](0, 1, 1, 2, 3, 5, 8, 13, 21, 34)
+    val s = fibs().takeWhile(_ < 4000000).filter(_%2 ==0).sum
+    s shouldBe 4613732
   }
 }
