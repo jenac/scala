@@ -32,22 +32,37 @@ class Q0001_0010Spec extends AnyFlatSpec with Matchers {
      * By considering the terms in the Fibonacci sequence whose values do not exceed four million,
      * find the sum of the even-valued terms.
      */
-     def fibo(n: Int): Int = {
-      @tailrec
-      def loop(n: Int, prev: Int, cur: Int): Int =
-        if (n <= 1) prev
-        else loop(n - 1, cur, prev + cur)
-
-      loop(n, 1, 2)
-    }
-
+    import Fibo._
     fibo(3) shouldBe 3
     fibo(4) shouldBe 5
     fibo(10) shouldBe 89
 
-    def fibs(x: BigInt=0, y:BigInt=1): LazyList[BigInt] = x #:: fibs(y, x+y)
     fibs().take(10) shouldBe LazyList[BigInt](0, 1, 1, 2, 3, 5, 8, 13, 21, 34)
-    val s = fibs().takeWhile(_ < 4000000).filter(_%2 ==0).sum
+    val s = fibs().takeWhile(_ < 4000000).filter(_ % 2 == 0).sum
     s shouldBe 4613732
+  }
+
+  it should "Q0003" in {
+    /**
+     * The prime factors of 13195 are 5, 7, 13 and 29.
+     *
+     * What is the largest prime factor of the number 600851475143 ?
+     */
+    import Prime._
+    primes.takeWhile(_ < 20) shouldBe LazyList(2, 3, 5, 7, 11, 13, 17, 19)
+
+    var n = 600851475143L
+    var i = 1
+    var pMax = 2
+    while (n != 1) {
+      val p = primes.take(i).last
+      if (n % p == 0) {
+        n = n/p
+        pMax = p
+      }
+      i = i+1
+    }
+
+    pMax shouldBe 6857
   }
 }
