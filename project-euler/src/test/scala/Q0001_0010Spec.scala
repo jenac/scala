@@ -48,21 +48,39 @@ class Q0001_0010Spec extends AnyFlatSpec with Matchers {
      *
      * What is the largest prime factor of the number 600851475143 ?
      */
-    import Prime._
-    primes.takeWhile(_ < 20) shouldBe LazyList(2, 3, 5, 7, 11, 13, 17, 19)
+//    import Prime._
+//    primes.takeWhile(_ < 20) shouldBe LazyList(2, 3, 5, 7, 11, 13, 17, 19)
+//
+//    var n = 600851475143L
+//    var i = 1
+//    var pMax = 2
+//    while (n != 1) {
+//      val p = primes.take(i).last
+//      if (n % p == 0) {
+//        n = n/p
+//        pMax = p
+//      }
+//      i = i+1
+//    }
+//
+//    pMax shouldBe 6857
 
-    var n = 600851475143L
-    var i = 1
-    var pMax = 2
-    while (n != 1) {
-      val p = primes.take(i).last
-      if (n % p == 0) {
-        n = n/p
-        pMax = p
+    def factor(n: BigInt, i: Int): List[BigInt] = {
+      if (i < n) {
+        if (n % i == 0) {
+          List(BigInt(i)) ++ factor(n/i, i)
+        } else {
+          factor(n, i + 1)
+        }
+      } else {
+        List(n)
       }
-      i = i+1
     }
 
-    pMax shouldBe 6857
+    factor(6, 2) shouldBe List(2,3)
+    factor(15, 2) shouldBe List(3,5)
+    factor(17*13, 2) shouldBe List(13, 17)
+    factor(600851475143L, 2) shouldBe List(71, 839, 1471, 6857)
+
   }
 }
