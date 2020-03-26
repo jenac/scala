@@ -48,27 +48,27 @@ class Q0001_0010Spec extends AnyFlatSpec with Matchers {
      *
      * What is the largest prime factor of the number 600851475143 ?
      */
-//    import Prime._
-//    primes.takeWhile(_ < 20) shouldBe LazyList(2, 3, 5, 7, 11, 13, 17, 19)
-//
-//    var n = 600851475143L
-//    var i = 1
-//    var pMax = 2
-//    while (n != 1) {
-//      val p = primes.take(i).last
-//      if (n % p == 0) {
-//        n = n/p
-//        pMax = p
-//      }
-//      i = i+1
-//    }
-//
-//    pMax shouldBe 6857
+    //    import Prime._
+    //    primes.takeWhile(_ < 20) shouldBe LazyList(2, 3, 5, 7, 11, 13, 17, 19)
+    //
+    //    var n = 600851475143L
+    //    var i = 1
+    //    var pMax = 2
+    //    while (n != 1) {
+    //      val p = primes.take(i).last
+    //      if (n % p == 0) {
+    //        n = n/p
+    //        pMax = p
+    //      }
+    //      i = i+1
+    //    }
+    //
+    //    pMax shouldBe 6857
 
     def factor(n: BigInt, i: Int): List[BigInt] = {
       if (i < n) {
         if (n % i == 0) {
-          List(BigInt(i)) ++ factor(n/i, i)
+          List(BigInt(i)) ++ factor(n / i, i)
         } else {
           factor(n, i + 1)
         }
@@ -77,10 +77,75 @@ class Q0001_0010Spec extends AnyFlatSpec with Matchers {
       }
     }
 
-    factor(6, 2) shouldBe List(2,3)
-    factor(15, 2) shouldBe List(3,5)
-    factor(17*13, 2) shouldBe List(13, 17)
+    factor(6, 2) shouldBe List(2, 3)
+    factor(15, 2) shouldBe List(3, 5)
+    factor(17 * 13, 2) shouldBe List(13, 17)
     factor(600851475143L, 2) shouldBe List(71, 839, 1471, 6857)
 
+  }
+
+  it should "Q0004" in {
+    /**
+     * A palindromic number reads the same both ways.
+     * The largest palindrome made from the product of two 2-digit numbers is 9009 = 91 × 99.
+     *
+     * Find the largest palindrome made from the product of two 3-digit numbers.
+     */
+    def isPalindromic(n: Int) = {
+      def nToList(n: Int): List[Int] = if (n <= 9) List(n) else n % 10 :: nToList(n / 10)
+
+      val list = nToList(n)
+      list == list.reverse
+    }
+
+    isPalindromic(0) shouldBe true
+    isPalindromic(1) shouldBe true
+    isPalindromic(22) shouldBe true
+    isPalindromic(121) shouldBe true
+    isPalindromic(1000) shouldBe false
+
+    val a = Range(999, 100, -1)
+    val b = Range(999, 100, -1)
+    val p = for {
+      x <- a
+      y <- b
+    } yield (x * y)
+
+    val found = p.filter(isPalindromic).max
+    found shouldBe 906609
+
+
+  }
+
+  it should "Q0005" in {
+    /**
+     * 2520 is the smallest number that can be divided by each of the numbers from 1 to 10 without any remainder.
+     *
+     * What is the smallest positive number that is evenly divisible by all of the numbers from 1 to 20?
+     */
+    import  Prime._
+    val step = primes.takeWhile(_<20).product
+    def numbers(start: Int): LazyList[Int] = start #:: numbers(start + 1)
+    def dividableByAll(n: Int): Boolean = Range(1, 21).forall( n % _ == 0)
+    val found = numbers(1).takeWhile(i => !dividableByAll(i * step))
+    val result = (found.max+1) * step
+    found shouldBe LazyList(1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23)
+    result shouldBe 232792560
+  }
+
+  it should "Q0006" in {
+    /**
+     * The sum of the squares of the first ten natural numbers is,
+     *
+     * 1^2+2^2+...+10^2=385
+     * The square of the sum of the first ten natural numbers is,
+     *
+     * (1+2+...+10)^2=552=3025
+     * Hence the difference between the sum of the squares of the first ten natural numbers
+     * and the square of the sum is 3025−385=2640.
+     *
+     * Find the difference between the sum of the squares of the first one hundred natural numbers and
+     * the square of the sum.
+     */
   }
 }
