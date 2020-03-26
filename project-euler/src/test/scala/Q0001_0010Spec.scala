@@ -233,4 +233,34 @@ class Q0001_0010Spec extends AnyFlatSpec with Matchers {
     maxProductAdj(list, 4, 1) shouldBe 5832L
     maxProductAdj(list, 13, 1L) shouldBe 23514624000L
   }
+
+  it should "Q0009" in {
+    /**
+     * A Pythagorean triplet is a set of three natural numbers, a < b < c, for which,
+     *
+     * a2 + b2 = c2
+     * For example, 32 + 42 = 9 + 16 = 25 = 52.
+     *
+     * There exists exactly one Pythagorean triplet for which a + b + c = 1000.
+     * Find the product abc.
+     */
+    val l = for {
+      c <- Range(1, 500)
+      b <- Range(1, 1000-c-1)
+    } yield (c, b)
+
+    def isPythagorean(cb: (Int, Int)): Boolean = cb match {
+      case (c, b) =>
+        val a = 1000-c-b
+        a*a + b*b == c*c
+    }
+    l.find(isPythagorean) shouldBe Some((425,200))
+
+    val product = l.find(isPythagorean) match {
+      case None => -1
+      case Some((c, b))=> c * b * (1000-c-b)
+    }
+
+    product shouldBe 31875000
+  }
 }
