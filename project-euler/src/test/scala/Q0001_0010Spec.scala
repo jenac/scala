@@ -263,4 +263,10 @@ class Q0001_0010Spec extends AnyFlatSpec with Matchers {
 
     product shouldBe 31875000
   }
+
+  it should "Q0010" in {
+    import Prime._
+    val sum = primes.takeWhile(_ < 2000000).foldLeft(0L)((acc, e) => e+acc)
+    sum shouldBe 142913828922L
+  }
 }
