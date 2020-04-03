@@ -79,6 +79,10 @@ class Q0011_0020Spec  extends AnyFlatSpec with Matchers {
     maxProduct shouldBe 70600674
   }
 
+  it should "Q0012" in {
+
+  }
+
   it should "Q0013" in {
     /**
      * Work out the first ten digits of the sum of the following one-hundred 50-digit numbers.
@@ -288,6 +292,52 @@ class Q0011_0020Spec  extends AnyFlatSpec with Matchers {
     val numbers = strings.split('\n').map(_.trim.substring(0, 11).toLong)
     val result = numbers.sum.toString.substring(0, 10)
     result shouldBe "5537376230"
+
+  }
+
+  it should "Q0014" in {
+    /**
+     * The following iterative sequence is defined for the set of positive integers:
+     *
+     * n → n/2 (n is even)
+     * n → 3n + 1 (n is odd)
+     *
+     * Using the rule above and starting with 13, we generate the following sequence:
+     *
+     * 13 → 40 → 20 → 10 → 5 → 16 → 8 → 4 → 2 → 1
+     * It can be seen that this sequence (starting at 13 and finishing at 1) contains 10 terms.
+     * Although it has not been proved yet (Collatz Problem), it is thought that all starting numbers finish at 1.
+     *
+     * Which starting number, under one million, produces the longest chain?
+     *
+     * NOTE: Once the chain starts the terms are allowed to go above one million.
+     */
+
+    def nextCollatz(start: Int): Int = if (start%2 == 0) start/2 else start*3 +1
+
+    import scala.collection.mutable.{Map => MutableMap}
+    object CollatzSizeCalc {
+      var map: MutableMap[Int, Int] = MutableMap(1->1)
+      var sizeMap: MutableMap[Int, Int] = MutableMap(1->1)
+
+      def collatzSeqSize(start: Int): Int = map.get(start) match  {
+        case Some(v) => v
+        case None =>
+          val next = collatzSeqSize(nextCollatz(start))
+          val size = 1 + next
+          map += (start -> size)
+          sizeMap += (size -> start)
+          size
+      }
+    }
+
+    CollatzSizeCalc.collatzSeqSize(999999)
+
+    CollatzSizeCalc.map.get(13) shouldBe None
+
+
+
+
 
   }
 }
