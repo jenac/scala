@@ -1,7 +1,10 @@
+import org.mockito.scalatest.MockitoSugar
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should.Matchers
 
-class MiscSpec extends AnyFlatSpec with Matchers {
+import scala.concurrent.{ExecutionContext, Future}
+
+class MiscSpec extends AnyFlatSpec with Matchers with MockitoSugar {
   it should "foldLeft vs foldRight" in {
     val values = List(1, 2, 3, 4, 5)
     val left = values.foldLeft(List.empty[Int])((acc, e) => e :: acc)
@@ -27,5 +30,42 @@ class MiscSpec extends AnyFlatSpec with Matchers {
 
     val lefts2 = values.collect { case Left(v) => v}
     lefts2 shouldBe List("l-1", "l-2")
+  }
+
+  it should "seq of future" in {
+    case class Person(firstName: String, lastName: String)
+    case class Team(members: Seq[Person])
+
+    trait BlacklistDao {
+      def isBlacklisted(firstName: String, lastName: String): Future[Either[String, Boolean]]
+    }
+
+    trait TeamDao {
+      def insert(team: Team): Future[Either[String, Unit]]
+    }
+
+    def addTeam(team: Team) = {
+      // if any of the team member is black listed return error string
+      // else insert team
+      // any dao opertaion errors(returns Left), stop process, return.
+      implicit val ec: ExecutionContext = ExecutionContext.global
+      val blacklistDao = mock[BlacklistDao]
+      val teamDao = mock[TeamDao]
+
+      val blacklistResults = Future.sequence(team.members.map(m => blacklistDao.isBlacklisted(m.firstName, m.lastName)))
+      val aggregateResult = for {
+        errors <- blacklistResults.map(_.collect {
+          case Left(err) => err})
+        isBlacklisted <- blacklistResults.map(_.exists(r => r == Right(true)))
+      } yield (errors, isBlacklisted)
+
+      aggregateResult.flatMap {
+        case (errors, isBlacklisted) => (errors.isEmpty, isBlacklisted) match {
+          case (false, _) => Future.failed(new Exception(errors.mkString(",")))
+          case (true, true) => Future.successful("is blacklisted")
+          case (true, false) => teamDao.insert(team)
+        }
+      }
+    }
   }
 }

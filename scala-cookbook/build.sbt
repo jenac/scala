@@ -95,6 +95,8 @@ lazy val research = (project in file("research"))
   .settings(
     name := "research",
     libraryDependencies += scalaTest % Test,
+    libraryDependencies += scalaMockito % Test
+
   )
 
 // See https://www.scala-sbt.org/1.x/docs/Using-Sonatype.html for instructions on how to publish to Sonatype.
